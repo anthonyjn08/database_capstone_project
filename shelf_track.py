@@ -43,19 +43,32 @@ if book_count[0] == 0:
 
 
 def enter_book():
+    '''
+    Function: enter_book
+    This function allows the user to enter a new book into the database
+    taking inputs from the user for the ID, title, authorID and quantity.
+
+    Inputs:
+    id: (int) The books ID and primary key
+    title: (str) The title of the book
+    authorID: The UD of the books author
+    qty: The quantity for the book
+    '''
     print("\nEnter new book\n")
     while True:
         try:
 
-            id = int(input("Please enter the books 4 digit ID (must not start with 0): "))
+            id = int(input("Please enter the books 4 digit ID "
+                           "(must not start with 0): "))
             title =  input("Please enter the books title: ")
-            authorid = int(input("Please enter the 4 digit Author ID (must not start with 0): "))
+            authorid = int(input("Please enter the 4 digit Author ID "
+                                 "(must not start with 0): "))
             qty = int(input("Please enter the total quantity: "))
 
             if id < 1000:
-                print("The ID must be 4 digits and not start with 0")
+                print("\nThe ID must be 4 digits and not start with 0\n")
             elif authorid < 1000:
-                print("The Author ID must be 4 digits and not start with 0")
+                print("\nThe Author ID must be 4 digits and not start with 0\n")
             else:
                 cursor.execute('''INSERT INTO book(id, title, authorID, qty)
                             VALUES(?, ?, ?, ?)''', (id, title, authorid, qty))
