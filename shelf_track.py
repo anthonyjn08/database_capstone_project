@@ -43,21 +43,29 @@ if book_count[0] == 0:
 
 
 def enter_book():
+    print("\nEnter new book\n")
     while True:
         try:
-            print("\nEnter new book\n")
 
             id = int(input("Please enter the books 4 digit ID (must not start with 0): "))
             title =  input("Please enter the books title: ")
             authorid = int(input("Please enter the 4 digit Author ID (must not start with 0): "))
             qty = int(input("Please enter the total quantity: "))
 
+            if id < 1000:
+                print("The ID must be 4 digits and not start with 0")
+            elif authorid < 1000:
+                print("The Author ID must be 4 digits and not start with 0")
+            else:
+                cursor.execute('''INSERT INTO book(id, title, authorID, qty)
+                            VALUES(?, ?, ?, ?)''', (id, title, authorid, qty))
 
-            cursor.execute('''INSERT INTO book(id, title, authorID, qty)
-                        VALUES(?, ?, ?, ?)''', (id, title, authorid, qty))
-            
-            db.commit()
-            print(f"\nBook: {title} added to database\n")
+                db.commit()
+                print(f"\nBook: {title} added to database\n")
+                break
+
+        except sqlite3.IntegrityError:
+            print(f"A book with ID {id} already exists. Please use a unique ID.")
         except ValueError:
             print("Please enter data in correct format!")
 
