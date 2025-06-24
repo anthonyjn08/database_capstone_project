@@ -14,6 +14,7 @@ cursor.execute(
 '''
 )
 
+
 # Create initial list of books in database
 books = [
     (3001, "A Tale of Two Cities", 1290, 30),
@@ -29,7 +30,8 @@ cursor.execute(
 '''
 )
 book_count = cursor.fetchone()
-if book_count == 0:
+if book_count[0] == 0:
+    print("adding books")
     cursor.executemany(
         '''
         INSERT INTO book(id, title, authorID, qty)
@@ -37,18 +39,40 @@ if book_count == 0:
 ''', books
     )
 
+    db.commit()
+
+
+def enter_book():
+    while True:
+        try:
+            print("\nEnter new book\n")
+
+            id = int(input("Please enter the books 4 digit ID (must not start with 0): "))
+            title =  input("Please enter the books title: ")
+            authorid = int(input("Please enter the 4 digit Author ID (must not start with 0): "))
+            qty = int(input("Please enter the total quantity: "))
+
+
+            cursor.execute('''INSERT INTO book(id, title, authorID, qty)
+                        VALUES(?, ?, ?, ?)''', (id, title, authorid, qty))
+            
+            db.commit()
+            print(f"\nBook: {title} added to database\n")
+        except ValueError:
+            print("Please enter data in correct format!")
+
 while True:
-    menu = input('''
+    menu = int(input('''
     Please select and option:
     1. Enter book
     2. Update book
     3. Delete book
     4. Search books
     0. Exit
-    : ''')
+    : '''))
 
     if menu == 1:
-        print("1")
+        enter_book()
     elif menu == 2:
         print("2")
     elif menu == 3:
@@ -56,6 +80,7 @@ while True:
     elif menu == 4:
         print("4")
     elif menu == 0:
+        db.close()
         sys.exit()
     else:
         print("Please enter a valid option")
