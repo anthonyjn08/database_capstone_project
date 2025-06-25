@@ -82,6 +82,72 @@ def enter_book():
         except ValueError:
             print("Please enter data in correct format!")
 
+
+def update_book():
+    print("\nUpdate book\n")
+
+    while True:
+        try:
+            id = int(input("Please enter the ID of the book you wish to update: "))
+
+            cursor.execute('''
+                           SELECT title
+                           FROM book
+                           WHERE id = ?''',
+                           (id,))
+            book = cursor.fetchone()
+
+            if book:
+                print(f"\nUpdating {book[0]}")
+                confirm = input("Please enter 'y' if this is the right book or 'n': ").lower()
+
+                if confirm == "y":
+                    qty = int(input("Please enter the new quantity: "))
+                    cursor.execute('''
+                                UPDATE book
+                                SET qty = ?
+                                WHERE id = ?''',
+                                (qty, id))
+                    
+                    print(f"{book[0]} quantity updated to {qty}")
+
+                    authorID_update = input(f"Would you like to update "
+                                            f"{book[0]}'s authorID? 'y' or 'n': ").lower()
+                    if authorID_update == "y":
+                        new_auth_ID = int(input("Please enter the new 4 digit author ID "
+                                                "(must not start with 0)"))
+                        if new_auth_ID < 1000:
+                            print("\nThe ID must be 4 digits and not start with 0\n")
+                        else:
+                            cursor.execute('''
+                                        UPDATE book
+                                        WHERE id = ?
+                                        SET authorID = ?''',
+                                        (id, new_auth_ID))
+                            print(f"{book[0]} author ID updated to {new_auth_ID}")
+
+                    title_update = input(f"Would you like to update {book[0]}'s "
+                                        f"title? 'y' or 'n': ").lower
+                    if title_update == "y":
+                        new_title = input("Please enter the new book title: ")
+                        cursor.execute('''
+                                    UPDATE book
+                                    WHERE id = ?
+                                    SET title = ?''',
+                                    (id, new_title))
+                        
+                        print(f"Title updated to {new_title}")
+                db.commit()
+            else:
+                print("Book not found.")
+
+            
+            break
+
+        except ValueError:
+            print("Please enter data in correct format!")
+
+
 while True:
     menu = int(input('''
     Please select and option:
@@ -95,7 +161,7 @@ while True:
     if menu == 1:
         enter_book()
     elif menu == 2:
-        print("2")
+        update_book()
     elif menu == 3:
         print("3")
     elif menu == 4:
