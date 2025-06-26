@@ -84,7 +84,7 @@ def enter_book():
 
 
 def update_book():
-    print("\n***Update book***\n")
+    print("\n**** Update book ****\n")
 
     while True:
         try:
@@ -166,7 +166,7 @@ def update_book():
 
 
 def delete_book():
-    print("\n***Delete Book***\n")
+    print("\n**** Delete Book ****\n")
     while True:
         try:
             id = int(input("Please enter the ID of the book you wish to delete "
@@ -212,6 +212,35 @@ def delete_book():
             print("\n*Invalid input. Please tray again.*\n")
 
 
+def search_books():
+    print("\n**** Search Book ****\n")
+
+    while True:
+        try:
+            id = int(input("Please enter the book ID or '0' to return to main menu: "))
+            cursor.execute('''
+                           SELECT *
+                           FROM book
+                           WHERE id = ?''',
+                           (id,))
+            book = cursor.fetchone()
+
+            if id == 0:
+                break
+
+            while True:
+                if book:
+                    print(f"\nBook ID:                  {book[0]}")
+                    print(f"Title:                      {book[1]}")
+                    print(f"Author ID:                  {book[2]}")
+                    print(f"Quantity:                   {book[3]}\n")
+                    break
+                else:
+                    print("Invalid option]")
+                    break
+        except ValueError:
+            print("\n*Invalid input. Please tray again.*\n")
+            
 while True:
     try:
         menu = int(input('''
@@ -230,7 +259,7 @@ while True:
         elif menu == 3:
             delete_book()
         elif menu == 4:
-            print("4")
+            search_books()
         elif menu == 0:
             db.close()
             sys.exit()
