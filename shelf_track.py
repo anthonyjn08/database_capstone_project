@@ -84,7 +84,7 @@ def enter_book():
 
 
 def update_book():
-    print("\nUpdate book\n")
+    print("\n***Update book***\n")
 
     while True:
         try:
@@ -165,26 +165,77 @@ def update_book():
             print("Please enter data in correct format!")
 
 
-while True:
-    menu = int(input('''
-    Please select and option:
-    1. Enter book
-    2. Update book
-    3. Delete book
-    4. Search books
-    0. Exit
-    : '''))
+def delete_book():
+    print("\n***Delete Book***\n")
+    while True:
+        try:
+            id = int(input("Please enter the ID of the book you wish to delete "
+                        " or '0' to return to main menu: "))
+            
+            if id == 0:
+                return
+            
+            elif id < 1000:
+                print("\nPlease make sure ID does not start with 0 and "
+                        "is four digits long.\n")
+                break
+            
+            cursor.execute('''
+                            SELECT title
+                            FROM book
+                            WHERE ID = ?''',
+                            (id,))
+            book = cursor.fetchone()
 
-    if menu == 1:
-        enter_book()
-    elif menu == 2:
-        update_book()
-    elif menu == 3:
-        print("3")
-    elif menu == 4:
-        print("4")
-    elif menu == 0:
-        db.close()
-        sys.exit()
-    else:
-        print("Please enter a valid option")
+            while True:
+                if book:
+                    print(f"Are you sure you wish to delete {book[0]} from the database?")
+                    choice = input("Enter 'y' or 'n': ").lower()
+                    if choice == "n":
+                        break
+                    elif choice == "y":
+                        cursor.execute('''
+                                        DELETE FROM book
+                                        WHERE id = ?''',
+                                        (id,))
+                        print(f"{book[0]} has been deleted")
+                        db.commit()
+                        break
+                    else:
+                        print("Invalid option. Try again.")
+                        continue
+                    
+                else:
+                    print("Book does not exist. Please try again.")
+
+        except ValueError:
+            print("\n*Invalid input. Please tray again.*\n")
+
+
+while True:
+    try:
+        menu = int(input('''
+        Please select and option:
+        1. Enter book
+        2. Update book
+        3. Delete book
+        4. Search books
+        0. Exit
+        : '''))
+
+        if menu == 1:
+            enter_book()
+        elif menu == 2:
+            update_book()
+        elif menu == 3:
+            delete_book()
+        elif menu == 4:
+            print("4")
+        elif menu == 0:
+            db.close()
+            sys.exit()
+        else:
+            print("Please enter a valid option")
+    
+    except ValueError:
+        print("Please enter a valid option.")
