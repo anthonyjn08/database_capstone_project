@@ -65,9 +65,9 @@ def enter_book():
                                  "(must not start with 0): "))
             qty = int(input("Please enter the total quantity: "))
 
-            if id < 1000:
+            if id < 1000 or id > 9999:
                 print("\nThe ID must be 4 digits and not start with 0\n")
-            elif authorid < 1000:
+            elif authorid < 1000 or authorid > 9999:
                 print("\nThe Author ID must be 4 digits and not start with 0\n")
             else:
                 cursor.execute('''INSERT INTO book(id, title, authorID, qty)
@@ -83,89 +83,98 @@ def enter_book():
             print("Please enter data in correct format!")
 
 
-def update_book():
-    print("\n**** Update book ****\n")
-
+def id_search(cursor):
     while True:
         try:
-            id = int(input("Please enter the ID of the book you "
-                           "wish to update or '0' for main menu: "))
-            
-            if id == 0:
-                return
+            id = int(input("Please enter the book id or '-1' for main menu: "))
+
+            if id == -1:
+                return None
+            elif id < 1000 or id > 9999:
+                print("\nThe ID must be 4 digits and not start with 0\n")
+                continue
 
             cursor.execute('''
-                           SELECT title
+                           SELECT *
                            FROM book
                            WHERE id = ?''',
                            (id,))
             book = cursor.fetchone()
 
-            while True:
-                if book:
-                    print(f"\nUpdating {book[0]}")
-                    confirm = input("Please enter 'y' if this is the right book or 'n': ").lower()
+            if book is None:
+                print("\nBook not found. Please try again.\n")
+                continue
 
-                    if confirm == "y":
-                        while True:
-                            try:
-                                qty = int(input("Please enter the new quantity "
-                                                "or '0' to proceed to update title or authorID: "))
-                                if qty == 0:
-                                    pass
-                                else:
-                                    cursor.execute('''
-                                                UPDATE book
-                                                SET qty = ?
-                                                WHERE id = ?''',
-                                                (qty, id))
-                                    
-                                    print(f"{book[0]} quantity updated to {qty}")
-
-                                authorID_update = input(f"Would you like to update "
-                                                        f"{book[0]}'s authorID? 'y' or 'n': ").lower()
-                                if authorID_update == "y":
-                                    new_auth_ID = int(input("Please enter the new 4 digit author ID "
-                                                            "(must not start with 0)"))
-                                    if new_auth_ID < 1000:
-                                        print("\nThe ID must be 4 digits and not start with 0\n")
-                                    else:
-                                        cursor.execute('''
-                                                    UPDATE book
-                                                    SET authorID = ?
-                                                    WHERE id = ?''',
-                                                    (new_auth_ID, id))
-                                        print(f"{book[0]} author ID updated to {new_auth_ID}")
-
-                                title_update = input(f"Would you like to update {book[0]}'s "
-                                                    f"title? 'y' or 'n': ").lower
-                                if title_update == "y":
-                                    new_title = input("Please enter the new book title: ")
-                                    cursor.execute('''
-                                                UPDATE book
-                                                SET title = ?
-                                                WHERE id = ?''',
-                                                (new_title, id))
-                                    
-                                    print(f"Title updated to {new_title}")
-                                return
-                            except ValueError:
-                                print("Please try again.")
-                    elif confirm == "n":
-                        break
-                    else:
-                        print("Invalid Option. Try again")
-                    db.commit()
-                    break
-                else:
-                    print("Book not found.")
-                    break
+            return book
+            
 
         except ValueError:
-            print("Please enter data in correct format!")
+                print("Please enter data in correct format!")
 
 
-def delete_book():
+def update_book(cursor):
+    print("\n**** Update book ****\n")
+
+    book = id_search(cursor)
+
+    while True:
+        print(f"\nUpdating {book[1]}\n")
+        confirm = input("Please enter 'y' if this is the right book or 'n': ").lower()
+
+        if confirm == "y":
+            while True:
+                try:
+                    qty = int(input("Please enter the new quantity "
+                                    "or '-1' to proceed to update title or authorID: "))
+                    if qty == -1:
+                        pass
+                    else:
+                        cursor.execute('''
+                                    UPDATE book
+                                    SET qty = ?
+                                    WHERE id = ?''',
+                                    (qty, id))
+                        
+                        print(f"{book[0]} quantity updated to {qty}")
+
+                    authorID_update = input(f"Would you like to update "
+                                            f"{book[0]}'s authorID? 'y' or 'n': ").lower()
+                    if authorID_update == "y":
+                        new_auth_ID = int(input("Please enter the new 4 digit author ID "
+                                                "(must not start with 0)"))
+                        if new_auth_ID < 1000:
+                            print("\nThe ID must be 4 digits and not start with 0\n")
+                        else:
+                            cursor.execute('''
+                                        UPDATE book
+                                        SET authorID = ?
+                                        WHERE id = ?''',
+                                        (new_auth_ID, id))
+                            print(f"{book[0]} author ID updated to {new_auth_ID}")
+
+                    title_update = input(f"Would you like to update {book[0]}'s "
+                                        f"title? 'y' or 'n': ").lower
+                    if title_update == "y":
+                        new_title = input("Please enter the new book title: ")
+                        cursor.execute('''
+                                    UPDATE book
+                                    SET title = ?
+                                    WHERE id = ?''',
+                                    (new_title, id))
+                        
+                        print(f"Title updated to {new_title}")
+                    return
+                except ValueError:
+                    print("Please try again.")
+        elif confirm == "n":
+            id_search(cursor)
+        else:
+            print("Invalid Option. Try again")
+        db.commit()
+        break
+
+
+def delete_book(cursor):
     print("\n**** Delete Book ****\n")
     while True:
         try:
@@ -255,11 +264,11 @@ while True:
         if menu == 1:
             enter_book()
         elif menu == 2:
-            update_book()
+            update_book(cursor)
         elif menu == 3:
-            delete_book()
+            delete_book(cursor)
         elif menu == 4:
-            search_books()
+            search_books(cursor)
         elif menu == 0:
             db.close()
             sys.exit()
