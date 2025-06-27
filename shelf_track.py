@@ -76,7 +76,6 @@ def enter_book():
         except ValueError:
             print("\nInvalid input! Please enter a 4 digit number.\n")
             
-            
     title =  input("Please enter the books title: ")
     
     while True:
@@ -168,7 +167,7 @@ def update_book(cursor):
                     if authorID_update == "y":
                         new_auth_ID = int(input("Please enter the new 4 digit author ID "
                                                 "(must not start with 0)"))
-                        if new_auth_ID < 1000:
+                        if new_auth_ID < 1000 or new_auth_ID > 9999:
                             print("\nThe ID must be 4 digits and not start with 0\n")
                         else:
                             cursor.execute('''
@@ -176,7 +175,7 @@ def update_book(cursor):
                                         SET authorID = ?
                                         WHERE id = ?''',
                                         (new_auth_ID, id))
-                            print(f"{book[0]} author ID updated to {new_auth_ID}")
+                            print(f"{book[1]} author ID updated to {new_auth_ID}")
 
                     title_update = input(f"Would you like to update {book[1]}'s "
                                         f"title? 'y' or 'n': ").lower
@@ -216,7 +215,7 @@ def delete_book(cursor):
                             DELETE FROM book
                             WHERE id = ?''',
                             (id,))
-            print(f"{book[0]} has been deleted")
+            print(f"{book[1]} has been deleted")
             db.commit()
             break
         else:
