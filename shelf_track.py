@@ -51,36 +51,60 @@ def enter_book():
     Inputs:
     id: (int) The books ID and primary key
     title: (str) The title of the book
-    authorID: The UD of the books author
+    authorID: The UD of the books author, foriegn key from author table
     qty: The quantity for the book
     '''
     print("\nEnter new book\n")
     while True:
         try:
-
             id = int(input("Please enter the books 4 digit ID "
                            "(must not start with 0): "))
-            title =  input("Please enter the books title: ")
-            authorid = int(input("Please enter the 4 digit Author ID "
-                                 "(must not start with 0): "))
-            qty = int(input("Please enter the total quantity: "))
-
             if id < 1000 or id > 9999:
                 print("\nThe ID must be 4 digits and not start with 0\n")
-            elif authorid < 1000 or authorid > 9999:
-                print("\nThe Author ID must be 4 digits and not start with 0\n")
-            else:
-                cursor.execute('''INSERT INTO book(id, title, authorID, qty)
-                            VALUES(?, ?, ?, ?)''', (id, title, authorid, qty))
+                continue
 
-                db.commit()
-                print(f"\nBook: {title} added to database\n")
-                break
-
-        except sqlite3.IntegrityError:
-            print(f"A book with ID {id} already exists. Please use a unique ID.")
+            cursor.execute('''
+                           SELECT id
+                           FROM book
+                           WHERE id = ?''',
+                           (id,))
+            if cursor.fetchone():
+                print(f"\nA book with ID {id} already exists. Please use a "
+                      "unique ID\n")
+                continue
+            break
         except ValueError:
-            print("Please enter data in correct format!")
+            print("\nInvalid input! Please enter a 4 digit number.\n")
+            
+            
+    title =  input("Please enter the books title: ")
+    
+    while True:
+        try:
+            authorid = int(input("Please enter the 4 digit Author ID "
+                                 "(must not start with 0): "))
+            if authorid < 1000 or authorid > 9999:
+                print("\nThe Author ID must be 4 digits and not start with 0\n")
+                continue
+            break
+        except ValueError:
+            print("\nInvalid input! Please enter a 4 digit number.\n")
+
+    while True:
+        try:
+            qty = int(input("Please enter the total quantity: "))
+            break
+        except ValueError:
+            print("\nPlease enter a whole number.\n")
+
+    try:
+        cursor.execute('''INSERT INTO book(id, title, authorID, qty)
+                    VALUES(?, ?, ?, ?)''', (id, title, authorid, qty))
+
+        db.commit()
+        print(f"\nBook: {title} added to database\n")
+    except sqlite3.IntegrityError as e:
+        print("Database integrity error.", e)
 
 
 def id_search(cursor):
@@ -117,6 +141,8 @@ def update_book(cursor):
 
     book = id_search(cursor)
 
+    id = book[0]
+
     while True:
         print(f"\nUpdating {book[1]}\n")
         confirm = input("Is this correct? (y/n): ").lower()
@@ -135,10 +161,10 @@ def update_book(cursor):
                                     WHERE id = ?''',
                                     (qty, id))
                         
-                        print(f"{book[0]} quantity updated to {qty}")
+                        print(f"{book[1]} quantity updated to {qty}")
 
                     authorID_update = input(f"Would you like to update "
-                                            f"{book[0]}'s authorID? (y/n): ").lower()
+                                            f"{book[1]}'s authorID? (y/n): ").lower()
                     if authorID_update == "y":
                         new_auth_ID = int(input("Please enter the new 4 digit author ID "
                                                 "(must not start with 0)"))
@@ -152,7 +178,7 @@ def update_book(cursor):
                                         (new_auth_ID, id))
                             print(f"{book[0]} author ID updated to {new_auth_ID}")
 
-                    title_update = input(f"Would you like to update {book[0]}'s "
+                    title_update = input(f"Would you like to update {book[1]}'s "
                                         f"title? 'y' or 'n': ").lower
                     if title_update == "y":
                         new_title = input("Please enter the new book title: ")
