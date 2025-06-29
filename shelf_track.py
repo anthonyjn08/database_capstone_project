@@ -290,6 +290,25 @@ def search_books(cursor):
             else:
                 print("\nInvalid option. Try again.\n")
 
+
+def view_details(cursor):
+    cursor.execute('''
+        SELECT book.title, author.name, author.country
+        FROM book
+        INNER JOIN author
+        ON book.authorID = author.ID
+        ''')
+    
+    details = cursor.fetchall()
+
+    for title, author, country in details:
+        print(f'''
+Title:        {title})
+Author:       {author}
+Country:      {country}''')
+        print("-" * 50)
+    
+
    
 while True:
     try:
@@ -299,6 +318,7 @@ while True:
         2. Update book
         3. Delete book
         4. Search books
+        5. View details of all books
         0. Exit
         : '''))
 
@@ -310,6 +330,8 @@ while True:
             delete_book(cursor)
         elif menu == 4:
             search_books(cursor)
+        elif menu == 5:
+            view_details(cursor)
         elif menu == 0:
             db.close()
             sys.exit()
