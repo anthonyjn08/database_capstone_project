@@ -14,6 +14,15 @@ cursor.execute(
 '''
 )
 
+# Check for an author table and create if it does not exist.
+cursor.execute(
+    '''
+    CREATE TABLE IF NOT EXISTS
+    author(id INTEGER PRIMARY KEY, name TEXT, country TEXT)
+'''
+)
+
+db.commit()
 
 # Create initial list of books in database
 books = [
