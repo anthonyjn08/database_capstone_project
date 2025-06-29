@@ -463,6 +463,12 @@ def search_books(cursor):
 
 
 def view_details(cursor):
+    '''
+    This function selects all books from the book table. There is an inner join
+    on book.authorID and author.id from the book and author tables. It then
+    iterates through the list to prints the title, author name and author country
+    in a easily readable manner for each book.
+    '''
 
     print("**** View all book details ****")
     cursor.execute('''
@@ -474,6 +480,7 @@ def view_details(cursor):
     
     details = cursor.fetchall()
 
+    # Iterate and print each book
     for title, author, country in details:
         print(f'''
 Title:        {title}
