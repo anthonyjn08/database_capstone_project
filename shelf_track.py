@@ -433,19 +433,25 @@ def delete_book(cursor):
 
 
 def search_books(cursor):
+    '''
+    Fuction: search_books
+    This function asks user for a book ID and returns the ID, title,
+    authorID and quantity. This is presented in a readable manner.
+    If book doesn't exist user is presented with a message stating so.
+    '''
     while True:
         print("\n**** Search Book ****\n")
 
+        # Get book from id_search function.
         book = id_search(cursor)
 
-        if book is None:
-            return
-
+        # Print the book detail
         print(f"\nBook ID:                    {book[0]}")
         print(f"Title:                      {book[1]}")
         print(f"Author ID:                  {book[2]}")
         print(f"Quantity:                   {book[3]}\n")
 
+        # User given choice to search again or return to main menu
         while True:
             again = input("\nSearch again? (y/n): ")
             if again == "y":
