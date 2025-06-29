@@ -170,6 +170,12 @@ def id_search(cursor):
     If the book doesn't exist, users are asked to enter the ID again
     or return to the main menu.
     This is used in any function where a user searches for a book.
+
+    Input:
+    id: (int) this is the book ID and primary key
+
+    Output:
+    book: returns the data of the book if found.
     '''
 
     # Loop to validate ID
@@ -208,22 +214,47 @@ def id_search(cursor):
 
 
 def update_book(cursor):
+    '''
+    Function update_book
+    This function allows users to update the book quantity, title, authorID
+    from the book table, and an inner join on the book authorID to the field
+    to the author ID field in the author table. The user can then update the
+    author name and country. If authorID is updated in the book table, the data
+    is refreshed to ensure it re-syncs with the author table.
+
+    Inputs:
+    qty: (int) new quantity if updated
+    new_auth_ID: (int) new author ID. Checked and validated
+    new_title: (TEXT) new title of book.
+    new_name: (TEXT) new author name
+    new_ctry: (TEXT) new author country
+    '''
     print("\n**** Update book ****\n")
 
+    # Create book object using id_search function
     book = id_search(cursor)
 
+    # Variables for ID and authorID for inner join on tables
     id = book[0]
     authorid = book[4]
+
+    # Create new_auth_id variable to use to check if book data needs refreshing
     new_auth_ID = None
+
 
     while True:
         try:
+            # Print book title to ensure this is the correct book before progressing
             print(f"\n** Updating {book[1]} **\n")
-            confirm = input("Is this correct? (y/n): ").lower()
+
+            # Allow user to confirm and proceed or make another selection
+            confirm = input("\nIs this correct? (y/n): ").lower()
 
             if confirm == "y":
                 while True:
                     try:
+                        # Show current quantity. Ask user to enter number to update
+                        # Or progress to other updates if they enter -1
                         qty = int(input(f"Current quantity: {book[3]}. Enter new quantity "
                                         "or '-1' to proceed to more update choices: "))
                         if qty == -1:
@@ -235,6 +266,7 @@ def update_book(cursor):
                                         WHERE id = ?''',
                                         (qty, id))
                             
+                            # Print confirmation message and save changes
                             print(f"{book[1]} quantity updated to {qty}")
                             db.commit()
                     except ValueError:
@@ -242,9 +274,11 @@ def update_book(cursor):
                         continue
                     break
 
+                # AuthorID update
                 authorID_update = input(f"{book[1]} authorID is {authorid}? "
                                                     f" Update? (y/n): ").lower()
 
+                # Create loop to validate authorID is int and 4 digits
                 while True:
                     try:
                         if authorID_update == "y":
@@ -274,7 +308,9 @@ def update_book(cursor):
                         print("\nInvalid input. Author ID must be a "
                             "4 digit number not starting with 0.\n")
                         continue
-                    
+
+                # Title update
+
                 while True:
                     title_update = input(f"\nBook title: {book[1]}. "
                                          "Update? (y/n): ").lower()
@@ -307,6 +343,8 @@ def update_book(cursor):
                                 (id,))
                     book = cursor.fetchone()
 
+                # Author name update
+
                 while True:
                     author_name = input(f"\nAuthor name is: {book[5]}. "
                                         "Update (y/n): ").lower()
@@ -325,7 +363,8 @@ def update_book(cursor):
                     else:
                         print("\nInvalid option. Try again.\n")
                         continue
-                    
+
+                # Author country update 
                 while True:
                     author_ctry = input(f"\nAuthor country is {book[6]}. "
                                         "Update? (y/n): ").lower()
@@ -346,10 +385,13 @@ def update_book(cursor):
                         continue
                                 
                 return
+            
+            # If id provided is not the right one, asks for ID again
+            # or provides option to return to main meny
             elif confirm == "n":
                 id_search(cursor)
             else:
-                print("Invalid Option. Try again")
+                print("\nInvalid Option. Try again.\n")
             
             break
         except sqlite3.IntegrityError as e:
