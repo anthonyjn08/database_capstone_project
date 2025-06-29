@@ -164,12 +164,24 @@ def enter_book():
 
 
 def id_search(cursor):
+    '''
+    Function: id_search
+    This function performs a search on the book ID in the book table.
+    If the book doesn't exist, users are asked to enter the ID again
+    or return to the main menu.
+    This is used in any function where a user searches for a book.
+    '''
+
+    # Loop to validate ID
     while True:
         try:
             id = int(input("Please enter the book id or '-1' for main menu: "))
 
+            # If user wants to return to main menu
             if id == -1:
                 return None
+            
+            # Validates ID
             elif id < 1000 or id > 9999:
                 print("\nThe ID must be 4 digits and not start with 0\n")
                 continue
@@ -181,12 +193,13 @@ def id_search(cursor):
                            (id,))
             book = cursor.fetchone()
 
+            # If book doesn't exist, provide error message.
             if book is None:
                 print("\nBook not found. Please try again.\n")
                 continue
 
+            # Return the book if found.
             return book
-            
 
         except ValueError:
                 print("Please enter data in correct format!")
