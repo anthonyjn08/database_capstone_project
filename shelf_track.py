@@ -44,6 +44,7 @@ cursor.execute(
 book_count = cursor.fetchone()
 
 # If book database is empty, insert book data from list
+# and then commit changes
 if book_count[0] == 0:
     print("adding books")
     cursor.executemany(
@@ -74,6 +75,7 @@ cursor.execute(
 author_count = cursor.fetchone()
 
 # If author database is empty, insert author data from list
+# and then commit changes
 if author_count[0] == 0:
     print("adding authors")
     cursor.executemany(
@@ -91,6 +93,8 @@ def enter_book():
     Function: enter_book
     This function allows the user to enter a new book into the database
     taking inputs from the user for the ID, title, authorID and quantity.
+    IDs are validated to be 4 digits, not starting with 0 and unique.
+    AuthorID is validated to be 4 digits and not start with 0.
 
     Inputs:
     id: (int) The books ID and primary key
@@ -99,14 +103,19 @@ def enter_book():
     qty: The quantity for the book
     '''
     print("\nEnter new book\n")
+
+    # Loop to get valid, unique 4 digit book ID
     while True:
         try:
             id = int(input("Please enter the books 4 digit ID "
                            "(must not start with 0): "))
+            
+            # Check ID is 4 digits
             if id < 1000 or id > 9999:
                 print("\nThe ID must be 4 digits and not start with 0\n")
                 continue
 
+            # Check ID does not already exist
             cursor.execute('''
                            SELECT id
                            FROM book
@@ -122,6 +131,7 @@ def enter_book():
             
     title =  input("Please enter the books title: ")
     
+    # Loop to get valid authorID
     while True:
         try:
             authorid = int(input("Please enter the 4 digit Author ID "
@@ -133,6 +143,7 @@ def enter_book():
         except ValueError:
             print("\nInvalid input! Please enter a 4 digit number.\n")
 
+    # Loop to get valid quantity
     while True:
         try:
             qty = int(input("Please enter the total quantity: "))
@@ -140,10 +151,12 @@ def enter_book():
         except ValueError:
             print("\nPlease enter a whole number.\n")
 
+    # Insert all validated inputs into database
     try:
         cursor.execute('''INSERT INTO book(id, title, authorID, qty)
                     VALUES(?, ?, ?, ?)''', (id, title, authorid, qty))
 
+        # Commit changes to database
         db.commit()
         print(f"\nBook: {title} added to database\n")
     except sqlite3.IntegrityError as e:
@@ -303,7 +316,7 @@ def view_details(cursor):
 
     for title, author, country in details:
         print(f'''
-Title:        {title})
+Title:        {title}
 Author:       {author}
 Country:      {country}''')
         print("-" * 50)
