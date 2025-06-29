@@ -399,12 +399,21 @@ def update_book(cursor):
 
 
 def delete_book(cursor):
+    '''
+    Function: delete_book
+    This function allows users to delete a book from the book table.
+    The user enters the book ID and is shown the title of the book.
+    They're then asked to confirm if they want to delete the book or not.
+    '''
     print("\n**** Delete Book ****\n")
 
+    # Get book from id_search function
     book = id_search(cursor)
 
     while True:
 
+        # Print book title and ask for confirmation.
+        # If yes, perform deleteion
         print(f"Are you sure you wish to delete {book[1]} from the database?")
         choice = input("(y/n): ").lower()
         if choice == "n":
@@ -414,6 +423,7 @@ def delete_book(cursor):
                             DELETE FROM book
                             WHERE id = ?''',
                             (id,))
+            # Provide confirmation message and commit changes
             print(f"\n{book[1]} has been deleted\n")
             db.commit()
             break
