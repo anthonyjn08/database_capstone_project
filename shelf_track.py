@@ -22,6 +22,7 @@ cursor.execute(
 '''
 )
 
+# Commit tables to the database
 db.commit()
 
 # Create initial list of books in database
@@ -30,8 +31,10 @@ books = [
     (3002, "Harry Potter and the Philosopher's Stone", 8937, 40),
     (3003, "The Lion, the Witch and the Wardrobe", 2356, 25),
     (3004, "The Lord of the Rings", 6380, 37),
-    (3005, "Alice’s Adventures in Wonderland", 5620, 12)
+    (3005, "Alice’s Adventures in Wonderland", 5620, 12),
 ]
+
+# Check if book database is populated
 cursor.execute(
     '''
     SELECT COUNT(*)
@@ -39,6 +42,8 @@ cursor.execute(
 '''
 )
 book_count = cursor.fetchone()
+
+# If book database is empty, insert book data from list
 if book_count[0] == 0:
     print("adding books")
     cursor.executemany(
@@ -46,6 +51,36 @@ if book_count[0] == 0:
         INSERT INTO book(id, title, authorID, qty)
         VALUES(?, ?, ?, ?)
 ''', books
+    )
+
+    db.commit()
+
+# List of initial authors in the system
+authors = [
+    (1290, "Charles Dickens", "England"),
+    (8937, "J.K. Rowling", "England"),
+    (2356, "C.S. Lewis", "Ireland"),
+    (6380, "J.R.R. Tolkien", "South Africa"),
+    (5620, "Lewis Carroll", "England"),
+]
+
+# Check if author database is populated
+cursor.execute(
+    '''
+    SELECT COUNT(*)
+    FROM author
+'''
+)
+author_count = cursor.fetchone()
+
+# If author database is empty, insert author data from list
+if author_count[0] == 0:
+    print("adding authors")
+    cursor.executemany(
+        '''
+        INSERT INTO author(id, name, country)
+        VALUES(?, ?, ?)
+''', authors
     )
 
     db.commit()
