@@ -189,7 +189,9 @@ def id_search(cursor):
             cursor.execute('''
                            SELECT *
                            FROM book
-                           WHERE id = ?''',
+                           INNER JOIN author
+                           ON book.id = author.id
+                           WHERE book.id = ?''',
                            (id,))
             book = cursor.fetchone()
 
@@ -248,7 +250,7 @@ def update_book(cursor):
                             print(f"{book[1]} author ID updated to {new_auth_ID}")
 
                     title_update = input(f"Would you like to update {book[1]}'s "
-                                        f"title? 'y' or 'n': ").lower
+                                        f"title? (y/n): ").lower
                     if title_update == "y":
                         new_title = input("Please enter the new book title: ")
                         cursor.execute('''
