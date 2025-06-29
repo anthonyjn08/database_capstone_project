@@ -175,7 +175,7 @@ def id_search(cursor):
     # Loop to validate ID
     while True:
         try:
-            id = int(input("Please enter the book id or '-1' for main menu: "))
+            id = int(input("\nPlease enter the book id or '-1' for main menu: "))
 
             # If user wants to return to main menu
             if id == -1:
@@ -204,19 +204,7 @@ def id_search(cursor):
             return book
 
         except ValueError:
-                print("Please enter data in correct format!")
-
-
-def refresh_data(cursor, id):
-    cursor.execute('''
-                           SELECT *
-                           FROM book
-                           INNER JOIN author
-                           ON book.authorid = author.id
-                           WHERE book.id = ?''',
-                           (id,))
-    book = cursor.fetchone()
-    return book
+                print("\nPlease enter data in correct format!\n")
 
 
 def update_book(cursor):
@@ -256,54 +244,55 @@ def update_book(cursor):
 
                 authorID_update = input(f"{book[1]} authorID is {authorid}? "
                                                     f" Update? (y/n): ").lower()
-                
 
                 while True:
                     try:
                         if authorID_update == "y":
-                            new_auth_ID = int(input("Please enter the new 4 digit author ID "
+                            new_auth_ID = int(input("Please enter the new 4 "
+                                                    "digit author ID "
                                                     "(must not start with 0)"))
                             if new_auth_ID < 1000 or new_auth_ID > 9999:
-                                print("\nThe ID must be 4 digits and not start with 0\n")
+                                print("\nThe ID must be 4 digits and "
+                                      "not start with 0\n")
                             else:
                                 cursor.execute('''
                                             UPDATE book
                                             SET authorID = ?
                                             WHERE id = ?''',
                                             (new_auth_ID, id))
-                                print(f"{book[1]} author ID updated to {new_auth_ID}")
+                                print(f"\n{book[1]} author ID updated to "
+                                      "{new_auth_ID}.\n")
                                 db.commit()
                                 break
                         elif authorID_update == "n":
                             break
                         else:
-                            print("Invalid option. Try again.")
+                            print("\nInvalid option. Try again.\n")
                             continue
-
 
                     except ValueError:
                         print("\nInvalid input. Author ID must be a "
-                            "4 digit number not starting with 0.")
+                            "4 digit number not starting with 0.\n")
                         continue
                     
-                    
                 while True:
-                    title_update = input(f"Book title: {book[1]}. Update? (y/n): ").lower()
+                    title_update = input(f"\nBook title: {book[1]}. "
+                                         "Update? (y/n): ").lower()
                     if title_update == "y":
-                        new_title = input("Please enter the new book title: ")
+                        new_title = input("\nPlease enter the new book title: ")
                         cursor.execute('''
                                     UPDATE book
                                     SET title = ?
                                     WHERE id = ?''',
                                     (new_title, id))
                         
-                        print(f"Title updated to {new_title}")
+                        print(f"\nTitle updated to {new_title}.\n")
                         db.commit()
                         break
                     elif title_update == "n":
                         break
                     else:
-                        print("Invalid option. Try again.")
+                        print("\nInvalid option. Try again.\n")
                         continue
 
                 # Refresh author ID and book data if authorID has been changed
@@ -319,38 +308,41 @@ def update_book(cursor):
                     book = cursor.fetchone()
 
                 while True:
-                    author_name = input(f"Author name is: {book[5]}. Update (y/n): ").lower()
+                    author_name = input(f"\nAuthor name is: {book[5]}. "
+                                        "Update (y/n): ").lower()
                     if author_name == "y":
-                        new_name = input("Please enter author name: ")
+                        new_name = input("\nPlease enter author name: ")
                         cursor.execute('''
                                         UPDATE author
                                         SET name = ?
                                         WHERE id = ?''',
                                         (new_name, authorid))
-                        print(f"{book[1]} Author name updated to {new_name}")
+                        print(f"\n{book[1]} author name updated to {new_name}\n")
                         db.commit()
                         break
                     elif author_name == "n":
                         break
                     else:
-                        print("Invalid option. Try again.")
+                        print("\nInvalid option. Try again.\n")
                         continue
                     
                 while True:
-                    author_ctry = input(f"Author country is {book[6]}. Update? (y/n): ").lower()
+                    author_ctry = input(f"\nAuthor country is {book[6]}. "
+                                        "Update? (y/n): ").lower()
                     if author_ctry == "y":
-                        new_ctry = input("Please enter author country: ")
+                        new_ctry = input("\nPlease enter author country: ")
                         cursor.execute('''
                                         UPDATE author
                                         SET country = ?
                                         WHERE id = ?''',
                                         (new_ctry, authorid))
+                        print(f"\n{book[1]} author country updated to {new_ctry}\n")
                         db.commit()
                         break
                     elif author_ctry == "n":
                         break
                     else:
-                        print("Invalid option. Try again.")
+                        print("\nInvalid option. Try again.\n")
                         continue
                                 
                 return
@@ -380,11 +372,11 @@ def delete_book(cursor):
                             DELETE FROM book
                             WHERE id = ?''',
                             (id,))
-            print(f"{book[1]} has been deleted")
+            print(f"\n{book[1]} has been deleted\n")
             db.commit()
             break
         else:
-            print("Invalid option. Try again.")
+            print("\nInvalid option. Try again.\n")
             continue
 
 
@@ -413,6 +405,8 @@ def search_books(cursor):
 
 
 def view_details(cursor):
+
+    print("**** View all book details ****")
     cursor.execute('''
         SELECT book.title, author.name, author.country
         FROM book
@@ -457,7 +451,7 @@ while True:
             db.close()
             sys.exit()
         else:
-            print("Please enter a valid option")
+            print("\nPlease enter a valid option\n")
     
     except ValueError:
-        print("Please enter a valid option.")
+        print("\nPlease enter a valid option.\n")
