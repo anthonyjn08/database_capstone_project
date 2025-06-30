@@ -234,8 +234,14 @@ def update_book(cursor):
     # Create book object using id_search function
     book = id_search(cursor)
 
+    # Book is None if user enters -1 to return to main menu on id_search
+    if book is None:
+        return
+
     # Variables for ID and authorID for inner join on tables
     id = book[0]
+    title = book[1]
+    quantity = book[3]
     authorid = book[4]
 
     # Create new_auth_id variable to use to check if book data needs refreshing
@@ -245,7 +251,7 @@ def update_book(cursor):
     while True:
         try:
             # Print book title to ensure this is the correct book before progressing
-            print(f"\n** Updating {book[1]} **\n")
+            print(f"\n** Updating {title} **\n")
 
             # Allow user to confirm and proceed or make another selection
             confirm = input("\nIs this correct? (y/n): ").lower()
@@ -255,7 +261,7 @@ def update_book(cursor):
                     try:
                         # Show current quantity. Ask user to enter number to update
                         # Or progress to other updates if they enter -1
-                        qty = int(input(f"Current quantity: {book[3]}. Enter new quantity "
+                        qty = int(input(f"\nCurrent quantity: {quantity}. Enter new quantity "
                                         "or '-1' to proceed to more update choices: "))
                         if qty == -1:
                             pass
@@ -267,7 +273,7 @@ def update_book(cursor):
                                         (qty, id))
                             
                             # Print confirmation message and save changes
-                            print(f"{book[1]} quantity updated to {qty}")
+                            print(f"\n{title} quantity updated to {qty}")
                             db.commit()
                     except ValueError:
                         print("\nInvalid input! Please enter a whole number or -1.\n")
@@ -275,16 +281,16 @@ def update_book(cursor):
                     break
 
                 # AuthorID update
-                authorID_update = input(f"{book[1]} authorID is {authorid}? "
+                authorID_update = input(f"\n{title} authorID is {authorid}? "
                                                     f" Update? (y/n): ").lower()
 
                 # Create loop to validate authorID is int and 4 digits
                 while True:
                     try:
                         if authorID_update == "y":
-                            new_auth_ID = int(input("Please enter the new 4 "
+                            new_auth_ID = int(input("\nPlease enter the new 4 "
                                                     "digit author ID "
-                                                    "(must not start with 0)"))
+                                                    "(must not start with 0): "))
                             if new_auth_ID < 1000 or new_auth_ID > 9999:
                                 print("\nThe ID must be 4 digits and "
                                       "not start with 0\n")
@@ -294,8 +300,8 @@ def update_book(cursor):
                                             SET authorID = ?
                                             WHERE id = ?''',
                                             (new_auth_ID, id))
-                                print(f"\n{book[1]} author ID updated to "
-                                      "{new_auth_ID}.\n")
+                                print(f"\n{title} author ID updated to "
+                                      f"{new_auth_ID}.\n")
                                 db.commit()
                                 break
                         elif authorID_update == "n":
@@ -310,9 +316,8 @@ def update_book(cursor):
                         continue
 
                 # Title update
-
                 while True:
-                    title_update = input(f"\nBook title: {book[1]}. "
+                    title_update = input(f"\nBook title: {title}. "
                                          "Update? (y/n): ").lower()
                     if title_update == "y":
                         new_title = input("\nPlease enter the new book title: ")
@@ -332,6 +337,7 @@ def update_book(cursor):
                         continue
 
                 # Refresh author ID and book data if authorID has been changed
+                # To ensure correct author is updated
                 if new_auth_ID is not None:
                     authorid = new_auth_ID
                     cursor.execute('''
@@ -342,11 +348,15 @@ def update_book(cursor):
                                 WHERE book.id = ?''',
                                 (id,))
                     book = cursor.fetchone()
+                
+                # Variables for author name and country
+                # Created here incase authorID was updated earlier in function
+                author_name = book[5]
+                author_country = book[6]
 
                 # Author name update
-
                 while True:
-                    author_name = input(f"\nAuthor name is: {book[5]}. "
+                    author_name = input(f"\nAuthor name is: {author_name}. "
                                         "Update (y/n): ").lower()
                     if author_name == "y":
                         new_name = input("\nPlease enter author name: ")
@@ -355,7 +365,7 @@ def update_book(cursor):
                                         SET name = ?
                                         WHERE id = ?''',
                                         (new_name, authorid))
-                        print(f"\n{book[1]} author name updated to {new_name}\n")
+                        print(f"\n{title} author name updated to {new_name}\n")
                         db.commit()
                         break
                     elif author_name == "n":
@@ -366,7 +376,7 @@ def update_book(cursor):
 
                 # Author country update 
                 while True:
-                    author_ctry = input(f"\nAuthor country is {book[6]}. "
+                    author_ctry = input(f"\nAuthor country is {author_country}. "
                                         "Update? (y/n): ").lower()
                     if author_ctry == "y":
                         new_ctry = input("\nPlease enter author country: ")
@@ -375,7 +385,7 @@ def update_book(cursor):
                                         SET country = ?
                                         WHERE id = ?''',
                                         (new_ctry, authorid))
-                        print(f"\n{book[1]} author country updated to {new_ctry}\n")
+                        print(f"\n{title} author country updated to {new_ctry}\n")
                         db.commit()
                         break
                     elif author_ctry == "n":
@@ -410,12 +420,20 @@ def delete_book(cursor):
     # Get book from id_search function
     book = id_search(cursor)
 
+    # Book is None if user enters -1 to return to main menu on id_search
+    if book is None:
+        return
+    
+    # Variables for book ID and title
+    id = book[0]
+    title = book[1]
+
     while True:
 
         # Print book title and ask for confirmation.
         # If yes, perform deleteion
-        print(f"Are you sure you wish to delete {book[1]} from the database?")
-        choice = input("(y/n): ").lower()
+        print(f"\nAre you sure you wish to delete {title} from the database?")
+        choice = input("\n(y/n): ").lower()
         if choice == "n":
             break
         elif choice == "y":
@@ -424,7 +442,7 @@ def delete_book(cursor):
                             WHERE id = ?''',
                             (id,))
             # Provide confirmation message and commit changes
-            print(f"\n{book[1]} has been deleted\n")
+            print(f"\n{title} has been deleted\n")
             db.commit()
             break
         else:
@@ -445,6 +463,10 @@ def search_books(cursor):
         # Get book from id_search function.
         book = id_search(cursor)
 
+        # Book is None if user enters -1 to return to main menu on id_search
+        if book is None:
+            return
+        
         # Print the book detail
         print(f"\nBook ID:                    {book[0]}")
         print(f"Title:                      {book[1]}")
@@ -489,7 +511,7 @@ Country:      {country}''')
         print("-" * 50)
     
 
-   
+# Main program menu  
 while True:
     try:
         menu = int(input('''
@@ -513,7 +535,7 @@ while True:
         elif menu == 5:
             view_details(cursor)
         elif menu == 0:
-            db.close()
+            db.close() # Close the database on program exit
             sys.exit()
         else:
             print("\nPlease enter a valid option\n")
